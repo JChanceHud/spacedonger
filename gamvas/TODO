@@ -1,0 +1,16 @@
+check: actor needs setFile before addAnimation, try to make it possible to just call addAnimation
+check if scaling for box2d objects possible
+allow gamvas.Vector2D for gamvas.Camera.toWorld() and toScreen() as alternative to x,y
+maybe parallax scrolling sysem as in sge2d: define layers, add actors to layers, define one layer as main layer for camera calculation
+test if window.requestAnimationFrame uses double buffering, if not, introduce doublebuffering
+disable/enable particle emitter
+on input events, check if receiving actor still exists, if not, remove from list of input event actors
+- same with state actors
+- same with physic engine
+check if resetWorld() destroys all objects, if not, destroy manually
+physics: get object under mouse
+- add onMouseOver and onMouseOut events
+
+nice to have:
+
+check distance between physical objects while including its physics shape into the calculation (aka how many pixels until contact)

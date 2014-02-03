@@ -1,0 +1,87 @@
+Format: 1.51
+
+
+# You can add a title and sub-title to your menu like this:
+# Title: [project name]
+# SubTitle: [subtitle]
+
+# You can add a footer to your documentation like this:
+# Footer: [text]
+# If you want to add a copyright notice, this would be the place to do it.
+
+# You can add a timestamp to your documentation like one of these:
+# Timestamp: Generated on month day, year
+# Timestamp: Updated mm/dd/yyyy
+# Timestamp: Last updated mon day
+#
+#   m     - One or two digit month.  January is "1"
+#   mm    - Always two digit month.  January is "01"
+#   mon   - Short month word.  January is "Jan"
+#   month - Long month word.  January is "January"
+#   d     - One or two digit day.  1 is "1"
+#   dd    - Always two digit day.  1 is "01"
+#   day   - Day with letter extension.  1 is "1st"
+#   yy    - Two digit year.  2006 is "06"
+#   yyyy  - Four digit year.  2006 is "2006"
+#   year  - Four digit year.  2006 is "2006"
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# --------------------------------------------------------------------------
+
+
+File: gamvas  (gamvas.base.js)
+File: gamvas.Actor  (gamvas.actor.js)
+File: gamvas.ActorState  (gamvas.actorstate.js)
+File: gamvas.Animation  (gamvas.animation.js)
+File: gamvas.AStar  (gamvas.astar.js)
+File: gamvas.AStarGrid  (gamvas.astargrid.js)
+File: gamvas.AStarGridNode  (gamvas.astargridnode.js)
+File: gamvas.AStarMap  (gamvas.astarmap.js)
+File: gamvas.AStarNode  (gamvas.astarnode.js)
+File: gamvas.Camera  (gamvas.camera.js)
+File: gamvas.Class  (gamvas.class.js)
+File: gamvas.config  (gamvas.config.js)
+File: gamvas.dom  (gamvas.dom.js)
+File: gamvas.event  (gamvas.event.js)
+File: gamvas.Image  (gamvas.image.js)
+File: gamvas.key  (gamvas.key.js)
+File: gamvas.math  (gamvas.math.js)
+File: gamvas.mouse  (gamvas.mouse.js)
+File: gamvas.ParticleEmitter  (gamvas.particleemitter.js)
+File: gamvas.physics  (gamvas.physics.js)
+File: gamvas.physics.UserData  (gamvas.physics.userdata.js)
+File: gamvas.Rect  (gamvas.rect.js)
+File: gamvas.Resource  (gamvas.resource.js)
+File: gamvas.screen  (gamvas.screen.js)
+File: gamvas.Sound  (gamvas.sound.js)
+File: gamvas.state  (gamvas.state.js)
+File: gamvas.State  (gamvas.state.state.js)
+File: gamvas.timer  (gamvas.timer.js)
+File: gamvas.Vector2D  (gamvas.vector2d.js)
+
+Group: Index  {
+
+   Index: Everything
+   Class Index: Classes
+   Function Index: Functions
+   Macro Index: Macros
+   Variable Index: Variables
+   }  # Group: Index
+
