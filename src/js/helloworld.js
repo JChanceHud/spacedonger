@@ -24,7 +24,7 @@ helloState = gamvas.State.extend({
 // run the following code when the page is loaded
 gamvas.event.addOnLoad(function() {
     // add our state
-    gamvas.state.addState(new helloState('helloworld'));
+    gamvas.state.addState(new helloState());
     // start the game on the canvas with id gameCanvas
     gamvas.start('gameCanvas');
 });
