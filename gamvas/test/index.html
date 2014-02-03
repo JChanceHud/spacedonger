@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Gamvas Test</title>
+        <script src="../js/Box2dWeb-2.1.a.3.min.js"></script>
+        <script src="../js/gamvas.debug.js"></script>
+        <script src="mousestate.js"></script>
+        <script src="camerastate.js"></script>
+        <script src="physicsplayground.js"></script>
+        <script src="test.js"></script>
+        <style type="text/css">
+            #gameCanvas {
+                background-color: black;
+            }
+
+            #container {
+                padding: 2em;
+            }
+
+	    #dialog {
+		    position: relative;
+		    background-color: #333;
+		    top: -300px;
+		    left: 200px;
+		    width: 300px;
+		    height: 200px;
+		    z-index: 99;
+	    }
+        </style>
+    </head>
+    <body>
+	<input type="text" />
+        <div id="container">
+            <canvas id="gameCanvas" width="800" height="600"></canvas>
+	    <div id="dialog" style="display: none;">
+		    <input type="text" id="playername" />
+		    <input type="button" value="Start" onclick="var s=gamvas.state.getCurrentState(); s.playerNameButtonPressed();" />
+	    </div>
+        </div>
+    </body>
+</html>
