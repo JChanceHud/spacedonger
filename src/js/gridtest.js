@@ -153,8 +153,15 @@ moveState = gamvas.ActorState.extend({
 			// reset counter
 			this.counter = 0;
 			
+			//update path before each move to make sure you don't run into the other ball
+			var target = this.actor.path[this.actor.path.length-1];
+			var st = gamvas.state.getCurrentState();
+			var newTarget  = st.camera.toScreen(target.position.x, target.position.y);
+			var currentPos = st.camera.toScreen(this.actor.x, this.actor.y);
+			this.actor.path = gamvas.state.grid.find(currentPos.x, currentPos.y, newTarget.x, newTarget.y);
+
 			var path = this.actor.path;
-			var step = this.actor.pathStep;
+			var step = 1; 
 			
 			// if unit has already reached destination, set target to null and idle
 			if (step >= path.length) {
