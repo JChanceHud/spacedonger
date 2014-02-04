@@ -40,7 +40,7 @@ mainState = gamvas.State.extend({
 					break;
 				}
 			}
-		} else if (button === gamvas.mouse.RIGHT) {
+		} else if (button === gamvas.mouse.RIGHT && this.selectedUnit) {
 			// set the selected unit's target to wherever the mouse is
 			this.selectedUnit.target = this.mouseSelect.clone();
 			
