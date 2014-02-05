@@ -7,6 +7,10 @@ mainState = gamvas.State.extend({
 		
 		// instantiating the highlighted square that follows the mouse cursor
 		this.mouseSelect = new rect(0, 0, this.nodeSize, this.nodeSize);
+		
+		// setting up pathfinding grid
+		this.grid = new gamvas.AStarGrid(20, 20, false, false,
+			gamvas.AStar.STRATEGY_IGNORE_STEPS, 0);
 			
 		// creating units for testing purposes
 		this.units = new Array();
@@ -16,11 +20,12 @@ mainState = gamvas.State.extend({
 		// adding all units to the state
 		for (var i = 0; i < this.units.length; i++) {
 			this.addActor(this.units[i]);
+			
+			// make the units unpassable on the grid
+			this.grid.setValue(this.units[i].x, this.units[i].y, -1);
 		}
 		
-		// set up pathfinding grid
-		this.grid = new gamvas.AStarGrid(20, 20, false, false,
-			gamvas.AStar.STRATEGY_IGNORE_STEPS, 0);
+		
 		
 	},
 	onMouseMove: function(x, y) {
@@ -41,21 +46,19 @@ mainState = gamvas.State.extend({
 				}
 			}
 		} else if (button === gamvas.mouse.RIGHT && this.selectedUnit) {
+			var unit = this.selectedUnit;
+		
 			// set the selected unit's target to wherever the mouse is
-			this.selectedUnit.target = this.mouseSelect.clone();
+			unit.target = this.mouseSelect.clone();
 			
-			// find a path to that target
-			this.selectedUnit.path = this.grid.find(
-				this.selectedUnit.x,
-				this.selectedUnit.y,
-				this.selectedUnit.target.x,
-				this.selectedUnit.target.y
-			);
-			// start at the first step in the path
-			this.selectedUnit.pathStep = 0;
-			
-			// tell unit to move
-			this.selectedUnit.setState("move");
+			// if target is already occupied
+			if (this.grid.getValue(unit.target.x, unit.target.y) === -1) {
+				// do something (attack, heal, interact, etc.)
+				unit.target = null;
+			} else {
+				// tell unit to move
+				unit.setState("move");
+			}
 		}
 	},
 	draw: function(t) {
@@ -126,6 +129,9 @@ unit = gamvas.Actor.extend({
 	move: function(gridNode) {
 		var st = gamvas.state.getCurrentState();
 		
+		// set old position as now empty on grid
+		st.grid.setValue(this.x, this.y, 0);
+		
 		// updating all position references
 		this.x = gridNode.position.x;
 		this.y = gridNode.position.y;
@@ -133,6 +139,9 @@ unit = gamvas.Actor.extend({
 		this.setPosition(loc.x, loc.y);
 		// also doing the same for the hitBox
 		this.hitBox.move(gridNode);
+		
+		// set new position as occupied on grid
+		st.grid.setValue(this.x, this.y, -1);
 	}
 });
 
@@ -153,20 +162,52 @@ moveState = gamvas.ActorState.extend({
 			// reset counter
 			this.counter = 0;
 			
-			var path = this.actor.path;
-			var step = this.actor.pathStep;
-			
-			// if unit has already reached destination, set target to null and idle
-			if (step >= path.length) {
+			// if unit has no target, or is at destination, go back to idling
+			if (!this.actor.target || this.actor.target.equals(this.actor.hitBox)) {
+				this.actor.path = null;
 				this.actor.target = null;
 				this.actor.setState("idle");
 				return;
 			}
 			
-			// move to the next step in the path
-			this.actor.move(path[step]);
-			this.actor.pathStep++;
+			// recalculate path to target
+			this.path(this.actor.target);
+			
+			// if there's somewhere to go...
+			if (this.actor.path && this.actor.path.length > 0) {
+				var st = gamvas.state.getCurrentState();
+				var next = this.actor.path[0];
+				// if the next space in the path is not occupied, go there
+				// (otherwise wait until it is)
+				if (st.grid.getValue(next.position.x, next.position.y) >= 0) {
+					this.actor.move(this.actor.path[0]);
+				}
+			}
 		}
+	},
+	path: function(target) {
+		// local variables
+		var st = gamvas.state.getCurrentState();
+		var unit = this.actor;
+		
+		// Trick pathfinder into thinking the current space is a valid walkable space
+		// otherwise it will think no path is available
+		// (I consider this a flaw with gamvas pathfinding... but who am I to make such claims?)
+		st.grid.setValue(unit.x, unit.y, 0);
+		
+		// if target is currently occupied, pretend it isn't so as to still make a path there
+		// (might be dodgy programming but who cares)
+		// otherwise just set the path as normal
+		if (st.grid.getValue(target.x, target.y) === -1) {
+			st.grid.setValue(target.x, target.y, 0);
+			unit.path = st.grid.find(unit.x, unit.y, target.x, target.y);
+			st.grid.setValue(target.x, target.y, -1);
+		} else {
+			unit.path = st.grid.find(unit.x, unit.y, target.x, target.y);
+		}	
+		
+		// set space back to occupied
+		st.grid.setValue(unit.x, unit.y, -1);
 	}
 });
 
@@ -195,7 +236,8 @@ function rect(x, y, width, height) {
 			return true;
 		} else if (!r) {
 			return false;
-		} else if (!r.x || !r.y || !r.width || !r.height) {
+		} else if (r.x === undefined || r.y === undefined ||
+			r.width === undefined || r.height === undefined) {
 			return false;
 		}
 		return (this.x === r.x && this.y === r.y &&
