@@ -44,9 +44,9 @@ testState = gamvas.State.extend({
 		var worldMouse = this.camera.toWorld(x,y);
 		this.mainActor.position = new gamvas.Vector2D(worldMouse.x-this.mainActor.width/2.0, worldMouse.y-this.mainActor.height/2.0);
 		var time = new Date().getTime();
-		if(time-self.lastUpdate > 16){
+		if(time-this.lastUpdate > 16){
 			this.socket.emit('updatePosition',this.mainActor.position); 
-			self.lastUpdate = time;
+			this.lastUpdate = time;
 		}
 	},
 	draw: function(t) {
