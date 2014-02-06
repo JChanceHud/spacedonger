@@ -11,6 +11,7 @@ testState = gamvas.State.extend({
 		});
 		var p = new Array();
 		this.players = p;
+		this.lastUpdate = 0;
 		this.socket.on('update', function (updateArr) {
 			/*
 			if(updateArr.length-1 != p.length){
@@ -42,7 +43,11 @@ testState = gamvas.State.extend({
 	onMouseMove: function (x, y) {
 		var worldMouse = this.camera.toWorld(x,y);
 		this.mainActor.position = new gamvas.Vector2D(worldMouse.x-this.mainActor.width/2.0, worldMouse.y-this.mainActor.height/2.0);
-		this.socket.emit('updatePosition',this.mainActor.position); 
+		var time = new Date().getTime();
+		if(time-self.lastUpdate > 16){
+			this.socket.emit('updatePosition',this.mainActor.position); 
+			self.lastUpdate = time;
+		}
 	},
 	draw: function(t) {
 		for(var x in this.players){
