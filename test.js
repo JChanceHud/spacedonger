@@ -12,6 +12,7 @@ testState = gamvas.State.extend({
 		var p = new Array();
 		this.players = p;
 		this.socket.on('update', function (updateArr) {
+			/*
 			if(updateArr.length-1 != p.length){
 				if(updateArr.length-1 > p.length){
 					for(var x=p.length; x<updateArr.length-1; x++){
@@ -22,10 +23,15 @@ testState = gamvas.State.extend({
 					p.splice(updateArr.length-1, p.length-updateArr.length-1);
 				}
 			}
+			*/
 			var c = 0;
 			for(var x in updateArr){
-				if(updateArr[x].id != this.socketID){
-					p[c].position = updateArr[x].position;
+				console.log(x);
+				if(x != this.socketID){
+					if(c >= p.length){
+						p.push(new testActor('player', 0, 0));
+					}
+					p[c].position = updateArr[x];
 					c++;
 				}
 			}
