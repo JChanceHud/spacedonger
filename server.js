@@ -2,17 +2,19 @@ var io = require('socket.io').listen(8080);
 
 var broadcastObj = {};
 
+var lastUpdate = 0;
+
 io.sockets.on('connection', function (socket){
 	socket.emit('connected', socket.id);
 	socket.on('updatePosition', function (position) {
 		broadcastObj[socket.id] = position;
-		broadcastPositions();
+		var time = new Date().getTime();
+		if(time-lastUpdate > 16){
+			lastUpdate = time;
+			io.sockets.emit('update', broadcastObj);
+		}
 	});
 });
-
-function broadcastPositions(){
-	io.sockets.volatile.emit('update', broadcastObj);
-}
 
 io.sockets.on('disconnect', function (socket){
 	
