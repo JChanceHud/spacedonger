@@ -27,12 +27,17 @@ testState = gamvas.State.extend({
 			*/
 			var c = 0;
 			for(var x in updateArr){
-				console.log(x);
 				if(x != this.socketID){
 					if(c >= p.length){
 						p.push(new testActor('player', 0, 0));
 					}
-					p[c].position = updateArr[x];
+					if(updateArr[x]){
+						p[c].position = updateArr[x];
+						p[c].active = true;	
+					}
+					else{
+						p[c].active = false;
+					}
 					c++;
 				}
 			}
@@ -51,7 +56,8 @@ testState = gamvas.State.extend({
 	},
 	draw: function(t) {
 		for(var x in this.players){
-			this.players[x].draw(t);
+			if(this.players[x].active)
+				this.players[x].draw(t);
 		}
 		this.mainActor.draw(t);
 	}
@@ -64,5 +70,6 @@ testActor = gamvas.Actor.extend({
 		this.width = 128;
 		this.height = 128;
 		this.setFile(st.resource.getImage('res/sprite.png'), 128,128,1,1);
+		this.active = true;
 	}
 });
