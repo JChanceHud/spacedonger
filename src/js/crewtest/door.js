@@ -58,6 +58,9 @@ doorClosed = gamvas.ActorState.extend({
 		this.count = 0;
 		this.opening = false;
 	},
+	leave: function() {
+		this.actor.setAnimation("open");
+	},
 	update: function(t) {
 		this.count += t;
 		// update every .99 seconds
@@ -70,7 +73,6 @@ doorClosed = gamvas.ActorState.extend({
 			// if this door has already been flagged to open, it will have already played
 			// its animation for .99 seconds, and is ready to be 'open'
 			if (this.opening) {
-				this.actor.setAnimation("open");
 				this.actor.setState("open");
 				this.opening = false;
 				// set the door as passable on the grid
@@ -102,6 +104,9 @@ doorOpen = gamvas.ActorState.extend({
 		this.count = 0;
 		this.closing = false;
 	},
+	leave: function() {
+		this.actor.setAnimation("closed");
+	},
 	update: function(t) {
 		this.count += t;
 		if (this.count >= .99) {
@@ -110,7 +115,6 @@ doorOpen = gamvas.ActorState.extend({
 			var adjacentUnit = false;
 			
 			if (this.closing === true) {
-				this.actor.setAnimation("closed");
 				this.actor.setState("closed");
 				this.closing = false;
 				return;

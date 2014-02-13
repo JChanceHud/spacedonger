@@ -14,14 +14,31 @@ unit = gamvas.Actor.extend({
 		// set width and height of unit (probably will be a standard number, like 64x64)
 		this.size = 64;
 		this.hitBox = new rect(x, y, this.size, this.size);
-		
-		// set sprite file
-		this.setFile(st.resource.getImage('../res/ball.png'));
         
         // instantiate actor states
         this.addState(new idleState("idle"));
         this.addState(new moveState("move"));
         this.setState("idle");
+        
+        
+		var directions = ["north", "south", "east", "west"];
+		for (var i = 0; i < directions.length; i++) {
+			this.addAnimation(new gamvas.Animation(
+				"standing-" + directions[i],
+				st.resource.getImage("../res/unit/unit1-standing-" + directions[i] + ".png"),
+				64, 64,
+				1, 1
+			));
+			this.addAnimation(new gamvas.Animation(
+				"walking-" + directions[i],
+				st.resource.getImage("../res/unit/unit1-walking-" + directions[i] + ".png"),
+				64, 64,
+				8, 4
+			));
+		}
+		
+		this.direction = "south";
+		this.setAnimation("standing-" + this.direction);
 	},
 	move: function(gridNode) {
 		var st = gamvas.state.getCurrentState();
@@ -54,12 +71,16 @@ moveState = gamvas.ActorState.extend({
 		this._super(name);
 		this.counter = 0;
 	},
+	leave: function() {
+		var anim = "standing-" + this.actor.direction;
+		this.actor.setAnimation(anim);
+	},
 	update: function(t) {
 		// count up using 't' or delta time
 		this.counter += t;
 		
-		// when 1/2 second has elapsed, continue
-		if (this.counter >= 0.5) {
+		// when 1 second has elapsed, continue
+		if (this.counter >= 1.0) {
 			// reset counter
 			this.counter = 0;
 			
@@ -81,6 +102,11 @@ moveState = gamvas.ActorState.extend({
 				// if the next space in the path is not occupied, go there
 				// (otherwise wait until it is)
 				if (st.grid.getValue(next.position.x, next.position.y) >= 0) {
+					this.setDirection(this.actor.path[0]);
+					
+					var anim = "walking-" + this.actor.direction;
+					this.actor.setAnimation(anim);
+					
 					this.actor.move(this.actor.path[0]);
 				}
 			}
@@ -124,5 +150,31 @@ moveState = gamvas.ActorState.extend({
 		for (var i = 0; i < st.units.length; i++) {
 			st.grid.setValue(st.units[i].x, st.units[i].y, -2);
 		}
+	},
+	setDirection: function(target) {
+		var x = this.actor.x;
+		var y = this.actor.y;
+		var tx = target.position.x;
+		var ty = target.position.y;
+		
+		var horizontal = tx - x;
+		var vertical = ty - y;
+		
+		var h_dir = "";
+		var v_dir = "";
+		
+		if (horizontal > 0) {
+			h_dir = "east";
+		} else if (horizontal < 0) {
+			h_dir = "west";
+		}
+		
+		if (vertical > 0) {
+			v_dir = "south";
+		} else if (vertical < 0) {
+			v_dir = "north";
+		}
+		
+		this.actor.direction = v_dir + h_dir;
 	}
 });
