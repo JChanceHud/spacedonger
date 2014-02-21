@@ -10,12 +10,18 @@
 			file.setAttribute("src", path);
 			document.getElementsByTagName("head")[0].appendChild(file);
 		</script>
-		<script src="../js/client.js"></script>
+		<script src="../js/chat_client.js"></script>
     </head>
     <body bgcolor=#fff>
-        <div id="container">
-			<canvas id="gameCanvas" width=800 height=600></canvas>
-        </div>
+		<h3>Messages</h3>
+		<div id="chatlist">
+		</div>
+		<div id="textfield">
+				<form name="chat" action="javascript:void(0);" onsubmit="sendMessage(this)">
+				<input type="text" name="message" value="">
+				<input type="button" name="send" value="Send" onClick="sendMessage(this.form)">
+			</form>
+		</div>
     </body>
 </html>
 
