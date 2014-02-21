@@ -5,10 +5,13 @@ gamvas.event.addOnLoad(function() {
 
 testState = gamvas.State.extend({
 	init: function () {
-		this.socket = io.connect('http://localhost:8080');
+		this.socket = io.connect(ip);
 		this.socket.on('connected', function (id) {
 			this.socketID = id;
 		});
+		window.addEventListener("beforeunload", function(e){
+			this.socket.emit("disconnect", null);
+		}, false);
 		var p = new Array();
 		this.players = p;
 		this.lastUpdate = 0;
@@ -26,6 +29,7 @@ testState = gamvas.State.extend({
 			}
 			*/
 			var c = 0;
+
 			for(var x in updateArr){
 				if(x != this.socketID){
 					if(c >= p.length){

@@ -3,7 +3,13 @@
     <head>
         <title>CTest - Test</title>
 		<script src="gamvas/js/gamvas.js"></script>
-		<script src="http://localhost:8080/socket.io/socket.io.js"></script>
+		<script src="config.js"></script>
+		<script type="text/javascript">
+			var file = document.createElement("script");
+			var path = ip.concat("/socket.io/socket.io.js");
+			file.setAttribute("src", path);
+			document.getElementsByTagName("head")[0].appendChild(file);
+		</script>
 		<script src="test.js"></script>
     </head>
     <body bgcolor=#fff>
