@@ -1,0 +1,31 @@
+#!/bin/sh
+
+if (( $# < 1 )) 
+then
+	echo "Usage: new_project project_name";
+	exit 2;
+fi
+PROJECTNAME=$1;
+echo "creating project: $PROJECTNAME";
+BASEDIR=$(dirname $0);
+FILEDIR="$BASEDIR/.test";
+HTMLFILE="$BASEDIR/html/$PROJECTNAME.html";
+CLIENTJSFILE="$BASEDIR/js/${PROJECTNAME}_client.js";
+SERVERJSFILE="$BASEDIR/js/server/${PROJECTNAME}_server.js";
+if [ -e $HTMLFILE ] || [ -e $CLIENTJSFILE ] || [ -e $SERVERJSFILE ];
+then
+	echo "ERROR: Files already exist, overwriting could cause loss of data";
+	exit 2;
+fi
+TMP="${FILEDIR}/tmp";
+
+sed -e s/__test__/$PROJECTNAME/g "$FILEDIR/__test__.html" > $TMP;
+mv $TMP $HTMLFILE;
+
+sed -e s/__test__/$PROJECTNAME/g "$FILEDIR/__test___client.js" > $TMP;
+mv $TMP $CLIENTJSFILE;
+
+sed -e s/__test__/$PROJECTNAME/g "$FILEDIR/__test___server.js" > $TMP;
+mv $TMP $SERVERJSFILE;
+
+if [ -e $TMP ]; then rm $TMP; fi
