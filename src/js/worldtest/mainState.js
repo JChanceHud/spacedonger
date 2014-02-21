@@ -28,7 +28,7 @@ mainState = gamvas.State.extend({
 			gamvas.AStar.STRATEGY_IGNORE_STEPS, 0);
 		
 		// create the environment
-		this.loadEnvironment("../res/map.txt", this);
+		this.loadEnvironment("http://pastie.org/pastes/8753991/text", this);
 	},
 	loadEnvironment: function(filePath, mainState) {
 		var reader = new XMLHttpRequest() || new ActiveXObject('MSXML2.XMLHTTP');
