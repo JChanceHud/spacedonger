@@ -73,7 +73,7 @@ testActor = gamvas.Actor.extend({
 		var st = gamvas.state.getCurrentState();
 		this.width = 128;
 		this.height = 128;
-		this.setFile(st.resource.getImage('res/sprite.png'), 128,128,1,1);
+		this.setFile(st.resource.getImage('../res/sprite.png'), 128,128,1,1);
 		this.active = true;
 	}
 });
