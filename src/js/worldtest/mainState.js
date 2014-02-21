@@ -6,13 +6,8 @@ mainState = gamvas.State.extend({
 		this.nodeSize = 64;
 		
 		// instantiating the highlighted square that follows the mouse cursor
+		this.mouseHighlight = new rect(0, 0, this.nodeSize, this.nodeSize);
 		this.mouseSelect = new rect(0, 0, this.nodeSize, this.nodeSize);
-		
-		// setting up pathfinding grid
-		this.width = 10;
-		this.height = 13;
-		this.grid = new gamvas.AStarGrid(this.height, this.width, false, false,
-			gamvas.AStar.STRATEGY_IGNORE_STEPS, 0);
 			
 		// creating an array for units, and create some test units
 		this.units = new Array();
@@ -27,13 +22,54 @@ mainState = gamvas.State.extend({
 		this.actors[0] = this.units[0];
 		this.actors[1] = this.units[1];
 		
-		// create the environment
-		this.createEnvironment();
+		this.width = 10;
+		this.height = 13;
+		this.grid = new gamvas.AStarGrid(this.height, this.width, false, false,
+			gamvas.AStar.STRATEGY_IGNORE_STEPS, 0);
 		
-		// adding all actors to the state
+		// create the environment
+		this.loadEnvironment("../res/map.txt", this);
+	},
+	loadEnvironment: function(filePath, mainState) {
+		var reader = new XMLHttpRequest() || new ActiveXObject('MSXML2.XMLHTTP');
+		var rawSrc;
+		reader.open("get", filePath, true);
+		reader.onreadystatechange = function() {
+			if (reader.readyState === 4) {
+				rawSrc = reader.responseText;
+			}
+		};
+		reader.onload = function() {
+			if (reader.readyState == 4) {
+				mainState.createEnvironment(rawSrc.split("\n"));
+			}
+		}
+		reader.send(null);
+	},
+	createEnvironment: function(srcLines) {
+		var numWalls = 0;
+		var numDoors = 0;
+		var numActors = this.actors.length;
+		
+		for (var row = 0; row < srcLines.length; row++) {
+			var line = srcLines[row];
+			for (var col = 0; col < line.length; col++) {
+				var letter = line.substring(col, col+1);
+				var objID = parseInt(letter);
+				switch (objID) {
+				case 0: break;
+				case 1: this.actors[numActors++] =
+					new wall("wall" + numWalls++, col, row);
+					break;
+				case 2: this.doors[numDoors] = new door("door" + numDoors, col, row);
+					this.actors[numActors++] = this.doors[numDoors++];
+					break;
+				}
+			}
+		}
+				
 		for (var i = 0; i < this.actors.length; i++) {
 			this.addActor(this.actors[i]);
-			
 			// make the actors unpassable on the grid
 			var value = -1; // value defaults to impassable object (i.e. wall)
 			if (this.units.indexOf(this.actors[i]) !== -1) {
@@ -44,47 +80,13 @@ mainState = gamvas.State.extend({
 			this.grid.setValue(this.actors[i].x, this.actors[i].y, value);
 		}
 	},
-	createEnvironment: function() {
-		var numWalls = 0;
-		var numDoors = 0;
-		var numActors = this.actors.length;
-		
-		// the code below is for creating an environment specific to this test
-		
-		// create walls all around the edges of the grid
-		for (var x = 0; x < this.height; x++) {
-			for (var y = 0; y < this.width; y++) {
-				if (x === 0 || x === this.height-1) {
-					this.actors[numActors++] = 
-						new wall("wall" + numWalls++, x, y);
-				} 
-				if (y === 0 || y === this.width-1) {
-					this.actors[numActors++] =
-						new wall("wall" + numWalls++, x, y);
-				}
-			}
-		}
-		
-		// create walls in columns throughout the area
-		// put a door alternating at the top and bottom of the columns
-		var shiftUp = true;
-		for (var x = 2; x < this.height-1; x+=2) {
-			for (var y = 1; y < this.width-1; y++) {
-				if ((shiftUp && y !== this.width-2) || (!shiftUp && y !== 1)) {
-					this.actors[numActors++] =
-						new wall("wall" + numWalls++, x, y);
-				} else {
-					this.doors[numDoors] = new door("door" + numDoors, x, y, 3*Math.PI/2);
-					this.actors[numActors++] = this.doors[numDoors++];
-				}
-			}
-			shiftUp = !shiftUp;
-		}
-	},
 	onMouseMove: function(x, y) {
 		// every time mouse moved, recalculate which grid square is highlighted
+		screenX = Math.floor(x / this.nodeSize);
+		screenY = Math.floor(y / this.nodeSize);
 		x = Math.floor(x / this.nodeSize);
 		y = Math.floor(y / this.nodeSize);
+		this.mouseHighlight = new rect(screenX, screenY, this.nodeSize, this.nodeSize);
 		this.mouseSelect = new rect(x, y, this.nodeSize, this.nodeSize);
 	},
 	onMouseUp: function(button, x, y, ev) {
@@ -114,6 +116,33 @@ mainState = gamvas.State.extend({
 				unit.setState("move");
 			}
 		}
+	},
+	onKeyUp: function(keyCode, character, ev) {
+		/*
+		var dx = dy = 0;
+		switch (keyCode) {
+		case gamvas.key.LEFT:
+			dx = -this.nodeSize;
+			break;
+		case gamvas.key.RIGHT:
+			dx = this.nodeSize;
+			break;
+		case gamvas.key.UP:
+			dy = -this.nodeSize;
+			break;
+		case gamvas.key.DOWN:
+			dy = this.nodeSize;
+			break;
+		}
+		this.camera.move(dx, dy);
+		for (var i = 0; i < this.actors.length; i++) {
+			var actor = this.actors[i];
+			actor.x += dx;
+			actor.y += dy;
+			actor.hitBox.x += dx;
+			actor.hitBox.y += dy;
+		}
+		*/
 	},
 	draw: function(t) {
 		// instruction text
@@ -147,8 +176,8 @@ mainState = gamvas.State.extend({
 		// draw grey square around mouse position
 		this.c.strokeStyle = 'rgb(209, 209, 209)';
 		this.c.strokeRect(
-			this.mouseSelect.loc.x + 1,
-			this.mouseSelect.loc.y + 1,
+			this.mouseHighlight.loc.x + 1,
+			this.mouseHighlight.loc.y + 1,
 			this.nodeSize - 2,
 			this.nodeSize - 2
 		);

@@ -17,8 +17,14 @@ var loadScript = function(url, callback) {
 	head.appendChild(script);
 }
 
-loadScript("../js/crewtest/mainState.js", null);
-loadScript("../js/crewtest/rect.js", null);
-loadScript("../js/crewtest/unit.js", null);
-loadScript("../js/crewtest/wall.js", null);
-loadScript("../js/crewtest/door.js", start);
+loadScript("../js/worldtest/rect.js",
+	loadScript("../js/worldtest/wall.js",
+		loadScript("../js/worldtest/door.js",
+			loadScript("../js/worldtest/unit.js",
+				loadScript("../js/worldtest/mainState.js",
+					start
+				)
+			)
+		)
+	)
+);
