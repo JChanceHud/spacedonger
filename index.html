@@ -8,9 +8,18 @@
         <title>Spacedonger</title>
         <script src="js/gamvas/js/gamvas.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/client_config.js"></script>
         <script>
             loadFile("js/gameState.js");
             loadFile("js/world.js");
+            loadFile("js/shipActor.js");
+            loadFile("js/lobbyState.js");
+        </script>
+        <script type="text/javascript">
+            var file = document.createElement("script");
+            var path = ip.concat("/socket.io/socket.io.js");
+            file.setAttribute("src", path);
+            document.getElementsByTagName("head")[0].appendChild(file);
         </script>
     </head>
     <body>
