@@ -1,7 +1,6 @@
 
 lobbyState = gamvas.State.extend({
     init: function(){
-        this.name = "lobbyState";
         this.size = {w:screen.width,h:screen.height};
         this.camera.position.x = this.size.w/2.0;
         this.camera.position.y = this.size.h/2.0;
@@ -9,17 +8,25 @@ lobbyState = gamvas.State.extend({
         this.readyCount = 0;
         this.clientCount = 0;
         gamvas.socket.on('connected', function(data){
+            gamvas.socket.id = data.id;
+            if(data.gameInProgress){
+                gamvas.state.setState("gameState");
+            }
             console.log('connected');
             this.clientCount = data.clientCount;
-        });
+        }.bind(this));
         gamvas.socket.on('gameStarting', function(data){
-            gamvas.state.setState(gamvas.state.getState("gameState"));
+            gamvas.state.setState("gameState");
         });
         gamvas.socket.on('readyUpdate', function(data){
-            console.log("readyupdate");
             this.readyCount = data.readyCount;
             this.clientCount = data.clientCount;
         }.bind(this));
+    },
+    enter: function(){
+        console.log(this);
+    },
+    leave: function(){
     },
     onMouseUp: function(button, x, y, ev){
         this.ready = !this.ready;
