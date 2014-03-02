@@ -4,6 +4,7 @@
 gamvas.event.addOnLoad(function() {
     //here we can load a main menu or something else if necesary
     gamvas.socket = io.connect(ip);
+    gamvas.socket.updateInterval = 0.1;
     gamvas.state.addState(new lobbyState("lobbyState"));
     gamvas.state.addState(new gameState("gameState"));
     gamvas.start("gameCanvas");
