@@ -21,7 +21,7 @@ gameState = gamvas.State.extend({
                 var s = this.ships[this.shipIDs[data[x].id]];
                 var c = this.camera.toWorld(data[x].position.x, data[x].position.y);
                 s.moveSpeed = data[x].moveSpeed;
-                s.setTarget(c.x-s.size.width/2.0, c.y-s.size.height/2.0, 0.1);
+                s.setTarget(c.x, c.y, 0.1);
             }
         }.bind(this));
     },
@@ -40,9 +40,9 @@ gameState = gamvas.State.extend({
     onMouseMove: function(x, y){
     },
     onMouseUp: function(button, x, y, ev){
-        if(button === gamvas.mouse.RIGHT){
-            gamvas.socket.emit('inputReceived', {mouse:true,id:gamvas.socket.id,mouseX:x,mouseY:y});
-        }
+        //if(button === gamvas.mouse.RIGHT){
+        gamvas.socket.emit('inputReceived', {mouse:true,id:gamvas.socket.id,mouseX:x,mouseY:y});
+        //}
     },
     preDraw: function(t){
     },
