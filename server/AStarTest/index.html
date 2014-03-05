@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            html {width: 100%; height: 100%; margin: 0px;}
+            body {width: 100%; height: 100%; margin: 0px; overflow: hidden;}
+        </style>
+        <title>AStar Test</title>
+        <script src="../../js/gamvas/js/gamvas.js"></script>
+        <script src="AStarTest.js"></script>
+        <script src="../../js/client_config.js"></script>
+        <script>
+            //load any other files
+        </script>
+        <script type="text/javascript">
+            var file = document.createElement("script");
+            var path = ip.concat("/socket.io/socket.io.js");
+            file.setAttribute("src", path);
+            document.getElementsByTagName("head")[0].appendChild(file);
+        </script>
+    </head>
+    <body>
+        <div id="container" style="width: 100%; height: 100%; margin: 0px">
+            <canvas id="gameCanvas" style="margin: 0px"></canvas>
+        </div>
+    </body>
+</html>
+

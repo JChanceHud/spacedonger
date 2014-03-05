@@ -30,7 +30,7 @@ exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
     //x0, y0 is the start point
     //x, y is the end point
     if(x === x0 && y0 === y)
-        return [new Point(x, y)];
+        return [new exports.Point(x, y)];
     var start = new exports.Point(x0, y0);
     var end = new exports.Point(x, y);
     var open = new heap.BinaryHeap(function(object){
