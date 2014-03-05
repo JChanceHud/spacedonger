@@ -17,6 +17,8 @@ var path = test.findPath(s.x, s.y, e.x, e.y);
 if(path.length === 0)
     console.log("failed to find path");
 
-for(var q = 0; q < path.length; q++){
-    console.log("X: "+path[q].x+" Y: "+path[q].y);
+var newPath = test.smoothPath(path);
+
+for(var q = 0; q < newPath.length; q++){
+    console.log("X: "+newPath[q].x+" Y: "+newPath[q].y);
 }

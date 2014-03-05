@@ -3,12 +3,16 @@
 // Currently just an A* implementation
 //
 
+var heap = require('./binaryHeap.js');
+
 exports.Point = function(x, y){
     this.x = x;
     this.y = y;
     this.g = 0;
     this.h = 0;
     this.f = 0;
+    this.closed = false; //weather or not it's been disqualified
+    this.visited = false; //whether or not it's added to the open heap
     this.parent = null;
 };
 
@@ -17,7 +21,7 @@ exports.AStarGrid = function(width, height){
     for(var x = 0; x < width; x++){
         this.grid[x] = new Array(height);
         for(var y = 0; y < height; y++){
-            this.grid[x][y] = 0;
+            this.grid[x][y] = {val:0,closed:false,visited:false};
         }
     }
 };
@@ -29,17 +33,22 @@ exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
         return [new Point(x, y)];
     var start = new exports.Point(x0, y0);
     var end = new exports.Point(x, y);
-    var open = [];
-    var closed = [];
+    var open = new heap.BinaryHeap(function(object){
+        if(object !== undefined)
+            return object.g;
+        return 0;
+    });
+    for(var xx = 0; xx < this.grid.length; xx++){
+        for(var yy = 0; yy < this.grid[0].length; yy++){
+            this.grid[xx][yy].closed = false;
+            this.grid[xx][yy].visited = false;
+        }
+    }
     this.calculateHDistForPoint(start, end);
     open.push(start);
-    while(open.length > 0){
-        var shortestIndex = 0;
-        for(var l = 0; l < open.length; l++){
-            if(open[l].f < open[shortestIndex].f) shortestIndex = l;
-        }
-        var currentPoint = open[shortestIndex];
-
+    var count = 0;
+    while(open.size() > 0){
+        var currentPoint = open.pop();
         if(currentPoint.x === end.x && currentPoint.y === end.y){
             //end case
             var curr = currentPoint;
@@ -50,36 +59,61 @@ exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
             }
             return ret.reverse();
         }
-        this.removePointFromArray(currentPoint, open);
-        closed.push(currentPoint);
+        currentPoint.closed = true;
+        this.grid[currentPoint.x][currentPoint.y].closed = true;
         var neighbors = this.getNeighbors(currentPoint);
-        //console.log(neighbors.length+" "+currentPoint.x+" "+currentPoint.y);
+
         for(var n = 0; n < neighbors.length; n++){
             var currentNeighbor = neighbors[n];
-            if(this.grid[currentNeighbor.x][currentNeighbor.y] !== 0 ||
-                    this.getIndexOfPoint(currentNeighbor, closed) !== -1)
+            if(this.grid[currentNeighbor.x][currentNeighbor.y].val !== 0 ||
+                    currentNeighbor.closed)
                 continue; //can't move onto this space, or already considered it
 
-            var g = currentPoint.g+1;
-            var gIsBest = false; 
-            if(this.getIndexOfPoint(currentNeighbor, open) === -1){
-                //don't already have this node
-                gIsBest = true;
-                currentNeighbor.h = this.calculateHDistForPoint(currentNeighbor, end);
-                open.push(currentNeighbor);
-            }
-            else if(g < currentNeighbor.g){
-                gIsBest = true;
-            }
+            var g = currentPoint.g + 1;
+            var beenVisited = currentNeighbor.visited;
 
-            if(gIsBest){
+            if(!beenVisited || g < currentNeighbor.g){
+                currentNeighbor.visited = true;
+                this.grid[currentNeighbor.x][currentNeighbor.y].visited = true;
                 currentNeighbor.parent = currentPoint;
+                currentNeighbor.h = this.calculateHDistForPoint(currentNeighbor, end);
                 currentNeighbor.g = g;
-                currentNeighbor.f = currentNeighbor.g+currentNeighbor.h;
+                currentNeighbor.f = currentNeighbor.g + currentNeighbor.h;
+
+                if(!beenVisited){
+                    open.push(currentNeighbor);
+                }
+                else{
+                    console.log("rescoring");
+                    open.rescore(currentNeighbor);
+                }
             }
         }
     }
     return [];
+};
+
+exports.AStarGrid.prototype.smoothPath = function(path){
+    var r = [];
+    var start = path[0];
+    r[0] = start;
+    for(var x = 1; x < path.length; x++){
+        var ri = r.length-1;
+        var axis = 0;
+        if(r[ri].x === r[ri].x)
+            axis = 1;
+        else
+            axis = 2;
+        if(axis === 0 && (path[x].x === r[ri].x || path[x].y === r[ri].y))
+            continue;
+        else if(axis === 1 && path[x].x === r[ri].x)
+            continue;
+        else if(axis === 2 && path[x].y === r[ri].y)
+            continue;
+        else
+            r[++ri] = path[x];
+    }
+    return r;
 };
 
 exports.AStarGrid.prototype.getNeighbors = function(point){
@@ -95,8 +129,10 @@ exports.AStarGrid.prototype.getNeighbors = function(point){
         r.push(new exports.Point(x, y+1));
     if(x+1 < this.grid.length)
         r.push(new exports.Point(x+1, y));
-    for(var i = 0; i < r.length; i++)
-        r[i].parent = point;
+    for(var xx = 0; xx < r.length; xx++){
+        r[xx].closed = this.grid[r[xx].x][r[xx].y].closed;
+        r[xx].visited = this.grid[r[xx].x][r[xx].y].visited;
+    }
     return r;
 };
 
