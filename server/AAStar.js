@@ -175,12 +175,17 @@ exports.AStarGrid.prototype.removePointFromArray = function(point, array){
 };
 
 exports.AStarGrid.prototype.calculateHDistForPoint = function(point, end){
+    var dx, dy = 0;
     if(this.hAlg === 0) //manhattan heuristics
         //this is multiple times more efficient
         return Math.abs(end.x-point.x)+Math.abs(end.y-point.y);
-    else if(this.hAlg === 1){ //linear distance heuristics
-        var dx = end.x-point.x;
-        var dy = end.y-point.y;
-        return Math.floor(Math.sqrt(dy*dy+dx*dx));
+    else if(this.hAlg === 1){ //diagonal distance heuristics (kings movement)
+        dx = Math.abs(end.x-point.x);
+        dy = Math.abs(end.y-point.y);
+        var D = 1.4;
+        //tie breaker ensures multiple equal paths
+        //are not followed - based on euclidean distance
+        var tieBreaker = (dx*dx+dy*dy);
+        return D*Math.max(dx, dy)*tieBreaker;
     }
 };
