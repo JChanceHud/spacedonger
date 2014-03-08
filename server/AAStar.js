@@ -5,7 +5,7 @@
 
 var heap = require('./binaryHeap.js');
 
-exports.Point = function(x, y){
+exports.Point = function(x, y, moveCost){
     this.x = x;
     this.y = y;
     this.g = 0;
@@ -13,6 +13,7 @@ exports.Point = function(x, y){
     this.f = 0;
     this.closed = false; //weather or not it's been disqualified
     this.visited = false; //whether or not it's added to the open heap
+    this.moveCost = (moveCost===undefined)?1:moveCost;
     this.parent = null;
 };
 
@@ -24,6 +25,12 @@ exports.AStarGrid = function(width, height){
             this.grid[x][y] = {val:0,closed:false,visited:false};
         }
     }
+    this.width = width;
+    this.height = height;
+    this.hAlg = 0;
+    this.diagonal = false;
+    //debug
+    this.nodesExplored = 0;
 };
 
 exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
@@ -35,7 +42,8 @@ exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
     var end = new exports.Point(x, y);
     var open = new heap.BinaryHeap(function(object){
         if(object !== undefined)
-            return object.g;
+            return object.f;
+    console.log("g is undefined");
         return 0;
     });
     for(var xx = 0; xx < this.grid.length; xx++){
@@ -46,8 +54,10 @@ exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
     }
     this.calculateHDistForPoint(start, end);
     open.push(start);
-    var count = 0;
+    this.nodesExplored = 1; //debug
+    this.iterations = 0;
     while(open.size() > 0){
+        this.iterations++;
         var currentPoint = open.pop();
         if(currentPoint.x === end.x && currentPoint.y === end.y){
             //end case
@@ -68,8 +78,7 @@ exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
             if(this.grid[currentNeighbor.x][currentNeighbor.y].val !== 0 ||
                     currentNeighbor.closed)
                 continue; //can't move onto this space, or already considered it
-
-            var g = currentPoint.g + 1;
+            var g = currentPoint.g + currentNeighbor.moveCost;
             var beenVisited = currentNeighbor.visited;
 
             if(!beenVisited || g < currentNeighbor.g){
@@ -82,6 +91,7 @@ exports.AStarGrid.prototype.findPath = function(x0, y0, x, y){
 
                 if(!beenVisited){
                     open.push(currentNeighbor);
+                    this.nodesExplored++; //debug
                 }
                 else{
                     console.log("rescoring");
@@ -121,14 +131,29 @@ exports.AStarGrid.prototype.getNeighbors = function(point){
     var r = [];
     var x = point.x;
     var y = point.y;
-    if(x-1 >= 0)
+    var diag = 1;
+    if(x-1 >= 0){
         r.push(new exports.Point(x-1, y));
+        if(this.diagonal){
+            if(y+1 < this.grid[0].length)
+                r.push(new exports.Point(x-1, y+1, diag));
+            if(y-1 >= 0)
+                r.push(new exports.Point(x-1, y-1, diag));
+        }
+    }
     if(y-1 >= 0)
         r.push(new exports.Point(x, y-1));
     if(y+1 < this.grid[0].length)
         r.push(new exports.Point(x, y+1));
-    if(x+1 < this.grid.length)
+    if(x+1 < this.grid.length){
         r.push(new exports.Point(x+1, y));
+        if(this.diagonal){
+            if(y+1 < this.grid[0].length)
+                r.push(new exports.Point(x+1, y+1, diag));
+            if(y-1 >= 0)
+                r.push(new exports.Point(x+1, y-1, diag));
+        }
+    }
     for(var xx = 0; xx < r.length; xx++){
         r[xx].closed = this.grid[r[xx].x][r[xx].y].closed;
         r[xx].visited = this.grid[r[xx].x][r[xx].y].visited;
@@ -150,5 +175,12 @@ exports.AStarGrid.prototype.removePointFromArray = function(point, array){
 };
 
 exports.AStarGrid.prototype.calculateHDistForPoint = function(point, end){
-    return Math.abs(end.x-point.x)+Math.abs(end.y-point.y);
+    if(this.hAlg === 0) //manhattan heuristics
+        //this is multiple times more efficient
+        return Math.abs(end.x-point.x)+Math.abs(end.y-point.y);
+    else if(this.hAlg === 1){ //linear distance heuristics
+        var dx = end.x-point.x;
+        var dy = end.y-point.y;
+        return Math.floor(Math.sqrt(dy*dy+dx*dx));
+    }
 };
